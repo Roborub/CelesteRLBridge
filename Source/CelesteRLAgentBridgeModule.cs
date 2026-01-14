@@ -161,6 +161,19 @@ public class CelesteRLAgentBridgeModule : EverestModule
             return;
         }
 
+        if (!string.IsNullOrEmpty(cmd) && cmd.Contains("LOAD_LEVEL,"))
+        {
+            Logger.Log(LogLevel.Info, "CelesteRL", "Received LOAD_LEVEL!");
+            if (self.scene is Level level)
+            {
+                string levelId = cmd.Replace("LOAD_LEVEL,", "").Trim();
+                
+                Entity coroutineHost = new Entity();
+                coroutineHost.Add(new Coroutine(WarpRoutine(levelId)));
+                Engine.Scene.Add(coroutineHost);
+            }
+        }
+
         if (!string.IsNullOrEmpty(cmd) && cmd.Contains("START_LEVEL"))
         {
             Logger.Log(LogLevel.Info, "CelesteRL", $"GOT COMMAND {cmd}");
@@ -173,7 +186,7 @@ public class CelesteRLAgentBridgeModule : EverestModule
         }
     }
 
-    private static IEnumerator WarpRoutine()
+    private static IEnumerator WarpRoutine(string levelId = null)
     {
         isWarping = true;
 
@@ -198,7 +211,16 @@ public class CelesteRLAgentBridgeModule : EverestModule
         {
             AreaKey area = new AreaKey(1, AreaMode.Normal);
             Session session = new Session(area);
+            
+            MapData mapData = AreaData.Get(area).Mode[0].MapData;
 
+            if (string.IsNullOrEmpty(levelId) || mapData.Get(levelId) == null)
+            {
+              levelId = mapData.StartLevel().Name;
+              Logger.Log(LogLevel.Info, "CelesteRL", $"Level ID = {levelId}");
+            }
+            
+            session.Level = levelId;
             session.FirstLevel = false;
             session.InArea = true;
             session.StartedFromBeginning = false;

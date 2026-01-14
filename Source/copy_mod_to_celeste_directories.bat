@@ -11,7 +11,7 @@ echo Copying CelesteRLAgentBridge mod to multiple instances...
 echo Source: %SOURCE%
 echo.
 
-set INSTANCE_COUNT=8
+set INSTANCE_COUNT=1
 
 :: Calculate N-1 because the loop is inclusive
 set /a MAX_INDEX=%INSTANCE_COUNT% - 1
